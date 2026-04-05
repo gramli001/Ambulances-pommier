@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feuille de Route</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: Arial, sans-serif;
+    background: #f4f6f9;
+    padding: 24px;
+    color: #1a1a1a;
+  }
+  .app { max-width: 960px; margin: auto; }
+
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1.5rem; flex-wrap: wrap; gap: 12px;
+    background: white; border-radius: 12px;
+    border: 1px solid #e2e2e2; padding: 16px 20px;
+  }
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  .badge-red {
+    background: #E24B4A; color: white; border-radius: 50%;
+    width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: bold; flex-shrink: 0;
+  }
+  .title { font-size: 20px; font-weight: 600; color: #1a1a1a; }
+  .subtitle { font-size: 13px; color: #666; margin-top: 2px; }
+  .header-right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .date-input {
+    border: 1px solid #ccc; border-radius: 8px;
+    padding: 7px 12px; font-size: 14px;
+    background: white; color: #1a1a1a;
+  }
+  .btn-print {
+    border: 1px solid #ccc; border-radius: 8px;
+    background: white; color: #444;
+    padding: 7px 16px; font-size: 13px; cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .btn-print:hover { background: #f4f6f9; }
+
+  .form-card {
+    background: white; border: 1px solid #e2e2e2;
+    border-radius: 12px; padding: 20px; margin-bottom: 1.5rem;
+  }
+  .form-section-title {
+    font-size: 12px; font-weight: 600; color: #888;
+    text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .form-dot { width: 8px; height: 8px; border-radius: 50%; background: #E24B4A; display: inline-block; }
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-label { font-size: 12px; color: #666; font-weight: 500; }
+  .form-input, .form-select {
+    border: 1px solid #ccc; border-radius: 8px;
+    padding: 9px 11px; font-size: 13px;
+    background: white; color: #1a1a1a; width: 100%;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .form-input:focus, .form-select:focus {
+    outline: none; box-shadow: 0 0 0 3px rgba(55,138,221,0.2); border-color: #378ADD;
+  }
+  .btn-add {
+    background: #E24B4A; color: white; border: none;
+    border-radius: 8px; padding: 10px 20px; font-size: 14px; font-weight: 600;
+    cursor: pointer; width: 100%; margin-top: 14px;
+  }
+  .btn-add:hover { background: #c93a39; }
+  .btn-add:disabled { background: #ccc; cursor: not-allowed; }
+
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .section-title { font-size: 13px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.05em; }
+  .sort-info { font-size: 12px; color: #aaa; }
+
+  .transport-list { display: flex; flex-direction: column; gap: 8px; }
+  .transport-card {
+    background: white; border: 1px solid #e2e2e2;
+    border-radius: 12px; padding: 14px 18px;
+    display: grid; grid-template-columns: 1.2fr 2fr 1.5fr auto;
+    gap: 16px; align-items: center;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .transport-card:hover { border-color: #bbb; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+
+  .tc-name { font-size: 14px; font-weight: 600; color: #1a1a1a; }
+  .tc-nb { font-size: 12px; color: #888; margin-top: 3px; }
+  .tc-route { display: flex; flex-direction: column; gap: 2px; }
+  .tc-loc { font-size: 13px; color: #444; display: flex; align-items: center; gap: 6px; }
+  .dot-dep { width: 8px; height: 8px; border-radius: 50%; background: #378ADD; flex-shrink: 0; }
+  .dot-arr { width: 8px; height: 8px; border-radius: 50%; background: #639922; flex-shrink: 0; }
+  .route-connector { width: 1px; height: 10px; background: #ddd; margin-left: 3.5px; }
+  .tc-time { font-size: 12px; color: #aaa; margin-left: 4px; }
+  .tc-place { font-size: 13px; color: #333; }
+  .tc-crew { display: flex; flex-direction: column; gap: 5px; }
+  .tag { font-size: 11px; padding: 4px 9px; border-radius: 20px; display: inline-block; font-weight: 500; }
+  .tag-veh { background: #E6F1FB; color: #0C447C; }
+  .tag-crew { background: #F1EFE8; color: #444441; }
+
+  .btn-del {
+    background: none; border: 1px solid #F09595;
+    color: #E24B4A; border-radius: 8px;
+    padding: 6px 12px; font-size: 12px; cursor: pointer; white-space: nowrap;
+  }
+  .btn-del:hover { background: #FCEBEB; }
+
+  .empty-state {
+    text-align: center; padding: 3.5rem 1rem;
+    background: white; border: 1px dashed #ddd;
+    border-radius: 12px; color: #aaa; font-size: 14px;
+  }
+  .empty-icon { font-size: 36px; margin-bottom: 10px; }
+  .loading-bar { text-align: center; padding: 2rem; color: #888; font-size: 14px; }
+
+  .notif {
+    position: fixed; bottom: 20px; right: 20px;
+    background: #1a1a1a; color: white;
+    padding: 12px 20px; border-radius: 10px;
+    font-size: 13px; display: none; z-index: 999;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .notif.show { display: block; }
+  .notif.success { background: #639922; }
+  .notif.error { background: #E24B4A; }
+
+  @media print {
+    body { background: white; padding: 10px; }
+    .form-card, .btn-print, .btn-del, .header-right, .btn-add { display: none !important; }
+    .transport-card { box-shadow: none !important; border: 1px solid #ccc !important; }
+    .header { border: none; padding: 0 0 10px 0; }
+  }
+  @media (max-width: 640px) {
+    .transport-card { grid-template-columns: 1fr 1fr; }
+    .tc-crew { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- COMPANY NAME -->
+  <div style="text-align: center; margin-bottom: 14px;">
+    <div style="font-size: 36px; font-weight: 700; color: #1a6fb5; letter-spacing: 0.03em;">Ambulances Pommier</div>
+  </div>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <div class="badge-red">+</div>
+      <div>
+        <div class="title">Feuille de Route</div>
+        <div class="subtitle" id="date-display">Chargement...</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <input class="date-input" type="date" id="date" onchange="chargerJour()">
+      <button class="btn-print" onclick="window.print()">&#128438; Imprimer</button>
+    </div>
+  </div>
+
+  <!-- FORMULAIRE -->
+  <div class="form-card">
+    <div class="form-section-title"><span class="form-dot"></span> Nouveau transport</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <div class="form-label">Patient</div>
+        <input class="form-input" id="nom" placeholder="Nom du patient">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Lieu de départ</div>
+        <input class="form-input" id="depart" placeholder="Prise en charge">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Heure de départ</div>
+        <input class="form-input" id="heureDepart" type="time">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Lieu d'arrivée</div>
+        <input class="form-input" id="arrivee" placeholder="Destination">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Heure d'arrivée</div>
+        <input class="form-input" id="heureArrivee" type="time">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Équipage</div>
+        <input class="form-input" id="equipage" placeholder="Noms des équipiers">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Véhicule</div>
+        <input class="form-input" id="vehicule" placeholder="Ex : VSL 1, Ambulance 2">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Nb. patients</div>
+        <select class="form-select" id="nbPatients">
+          <option value="1">1 patient</option>
+          <option value="2">2 patients</option>
+          <option value="3">3 patients</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-add" id="btnAjouter" onclick="ajouter()">+ Ajouter le transport</button>
+  </div>
+
+  <!-- LISTE -->
+  <div class="section-header">
+    <div class="section-title">Transports du jour</div>
+    <div class="sort-info">Triés par heure de départ</div>
+  </div>
+  <div class="transport-list" id="liste">
+    <div class="loading-bar">⏳ Chargement des transports...</div>
+  </div>
+
+</div>
+
+<!-- NOTIFICATION -->
+<div class="notif" id="notif"></div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzs7RTgulDuJ3Pu27wFjGzXUjQKEn5u5LsrBI4zDFszxdhd6J1cclfuXZMz1GcRbA4X/exec";
+let transports = [];
+let rowIndexMap = [];
+
+window.onload = () => {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById("date").value = today;
+  chargerJour();
+  setInterval(chargerJour, 30000);
+};
+
+function updateDateDisplay() {
+  const val = document.getElementById("date").value;
+  if (!val) return;
+  const d = new Date(val + 'T00:00:00');
+  const opts = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+  document.getElementById("date-display").textContent = d.toLocaleDateString('fr-FR', opts);
+}
+
+function notif(msg, type) {
+  const el = document.getElementById("notif");
+  el.textContent = msg;
+  el.className = "notif show " + (type || "");
+  setTimeout(() => { el.className = "notif"; }, 3000);
+}
+
+async function ajouter() {
+  const nom = document.getElementById("nom").value.trim();
+  if (!nom) { document.getElementById("nom").focus(); return; }
+
+  const btn = document.getElementById("btnAjouter");
+  btn.disabled = true;
+  btn.textContent = "Envoi en cours...";
+
+  const date = document.getElementById("date").value;
+  const params = new URLSearchParams({
+    action: "add",
+    date,
+    nom,
+    depart: document.getElementById("depart").value,
+    heureDepart: document.getElementById("heureDepart").value,
+    arrivee: document.getElementById("arrivee").value,
+    heureArrivee: document.getElementById("heureArrivee").value,
+    equipage: document.getElementById("equipage").value,
+    vehicule: document.getElementById("vehicule").value,
+    nb: document.getElementById("nbPatients").value
+  });
+
+  try {
+    await fetch(SCRIPT_URL + "?" + params.toString());
+    viderChamps();
+    notif("✅ Transport ajouté !", "success");
+    await chargerJour();
+  } catch(e) {
+    notif("❌ Erreur de connexion", "error");
+  }
+
+  btn.disabled = false;
+  btn.textContent = "+ Ajouter le transport";
+}
+
+function viderChamps() {
+  ["nom","depart","heureDepart","arrivee","heureArrivee","equipage","vehicule"].forEach(id => {
+    document.getElementById(id).value = "";
+  });
+  document.getElementById("nbPatients").value = "1";
+}
+
+async function chargerJour() {
+  updateDateDisplay();
+  const date = document.getElementById("date").value;
+
+  try {
+    const res = await fetch(SCRIPT_URL + "?action=get&t=" + Date.now());
+    const all = await res.json();
+
+    transports = [];
+    rowIndexMap = [];
+
+    all.forEach((t, i) => {
+      const d = t["date"] || t["📅 Date"] || Object.values(t)[0];
+      if (String(d).trim() === date) {
+        transports.push(t);
+        rowIndexMap.push(i);
+      }
+    });
+
+    afficher();
+  } catch(e) {
+    document.getElementById("liste").innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div>Impossible de charger les données.<br>Vérifiez votre connexion internet.</div>`;
+  }
+}
+
+function g(t, ...keys) {
+  for (const k of keys) {
+    if (t[k] !== undefined && t[k] !== "") return t[k];
+  }
+  return "";
+}
+
+function afficher() {
+  const indices = transports.map((_, i) => i);
+  indices.sort((a, b) => {
+    const ha = g(transports[a], "heureDepart", "🕐 H. Départ") || "";
+    const hb = g(transports[b], "heureDepart", "🕐 H. Départ") || "";
+    if (!ha && !hb) return 0;
+    if (!ha) return 1;
+    if (!hb) return -1;
+    return ha.localeCompare(hb);
+  });
+
+  const liste = document.getElementById("liste");
+  if (transports.length === 0) {
+    liste.innerHTML = `<div class="empty-state"><div class="empty-icon">🚑</div>Aucun transport planifié pour ce jour.<br>Utilisez le formulaire ci-dessus pour en ajouter.</div>`;
+    return;
+  }
+
+  liste.innerHTML = indices.map(i => {
+    const t = transports[i];
+    const nom      = g(t, "nom", "👤 Patient");
+    const depart   = g(t, "depart", "📍 Lieu de départ");
+    const hDep     = g(t, "heureDepart", "🕐 H. Départ");
+    const arrivee  = g(t, "arrivee", "🏥 Lieu d'arrivée");
+    const hArr     = g(t, "heureArrivee", "🕐 H. Arrivée");
+    const equipage = g(t, "equipage", "👥 Équipage");
+    const vehicule = g(t, "vehicule", "🚑 Véhicule");
+    const nb       = g(t, "nb", "👥 Nb patients") || 1;
+    const depTime  = hDep ? `<span class="tc-time">${hDep}</span>` : '';
+    const arrTime  = hArr ? `<span class="tc-time">${hArr}</span>` : '';
+
+    return `<div class="transport-card">
+      <div>
+        <div class="tc-name">${nom}</div>
+        <div class="tc-nb">${nb} patient${nb > 1 ? 's' : ''}</div>
+      </div>
+      <div class="tc-route">
+        <div class="tc-loc"><span class="dot-dep"></span><span class="tc-place">${depart || '—'}</span>${depTime}</div>
+        <div class="route-connector"></div>
+        <div class="tc-loc"><span class="dot-arr"></span><span class="tc-place">${arrivee || '—'}</span>${arrTime}</div>
+      </div>
+      <div class="tc-crew">
+        ${vehicule ? `<span class="tag tag-veh">${vehicule}</span>` : ''}
+        ${equipage ? `<span class="tag tag-crew">${equipage}</span>` : ''}
+      </div>
+      <button class="btn-del" onclick="supprimer(${i})">Supprimer</button>
+    </div>`;
+  }).join('');
+}
+
+async function supprimer(localIndex) {
+  if (!confirm("Supprimer ce transport ?")) return;
+  const sheetIndex = rowIndexMap[localIndex];
+  try {
+    await fetch(SCRIPT_URL + "?action=delete&index=" + sheetIndex);
+    notif("🗑️ Transport supprimé", "success");
+    await chargerJour();
+  } catch(e) {
+    notif("❌ Erreur lors de la suppression", "error");
+  }
+}
+</script>
+
+</body>
+</html>
